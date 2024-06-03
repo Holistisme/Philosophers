@@ -6,7 +6,7 @@
 #    By: aheitz <aheitz@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/28 11:09:29 by aheitz            #+#    #+#              #
-#    Updated: 2024/05/31 15:53:45 by aheitz           ###   ########.fr        #
+#    Updated: 2024/06/03 21:57:21 by aheitz           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@
 NAME		= philo
 
 #	* ------------- Flags and other compilation information ------------- *	//
-CFLAGS		= -Wall -Wextra -Werror
+CFLAGS		= -Wall -Wextra -Werror -pthread -g3
 #	? - Variable to prevent information printed when called recursively - ?	//
 MAKEFLAGS	+= --no-print-directory
 ARGV		= ""
@@ -24,7 +24,10 @@ UTILITIES	= ./utilities
 
 #	* ---------------------- Code and binary files ---------------------- *	//
 SRCS		= ./main.c \
+			./monitoring.c \
 			./parameters.c \
+			./routine.c \
+			./sit.c \
 			$(UTILITIES)/allocation.c \
 			$(UTILITIES)/print_stderr.c
 OBJS		= $(SRCS:.c=.o)
@@ -73,7 +76,7 @@ git:
 	@$(MAKE) fclean
 	@$(MAKE) norminette
 	@echo "$(UWHITE)Starting the git upload procedure:$(RESET)"
-	@git add .
+	@git add ./..
 	@git commit
 	@git push all main
 	@echo "$(GREEN)Done$(RESET)!"

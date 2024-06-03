@@ -6,14 +6,15 @@
 /*   By: aheitz <aheitz@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 12:00:44 by aheitz            #+#    #+#             */
-/*   Updated: 2024/05/31 12:53:15 by aheitz           ###   ########.fr       */
+/*   Updated: 2024/06/03 08:56:06 by aheitz           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./philo.h"
 
 //	* -------------------- Static function prototype -------------------- *	//
-static int	save_parameter(const char *argv, unsigned int *parameter);
+static int	save_parameter(const char *argv, unsigned int *parameter,
+				t_boolean time);
 
 //	* -------- Function to check the number of arguments entered -------- *	//
 //	* ------- If the number of arguments is valid, returns "TRUE" ------- *	//
@@ -46,12 +47,13 @@ t_parameters	*set_parameters(char **argv)
 		print_stderr("Allocation failure to obtain input parameters!\n");
 		return (NULL);
 	}
-	if (save_parameter(argv[1], &parameters->philosophers) == FAILURE
-		|| save_parameter(argv[2], &parameters->time_to_die) == FAILURE
-		|| save_parameter(argv[3], &parameters->time_to_eat) == FAILURE
-		|| save_parameter(argv[4], &parameters->time_to_sleep) == FAILURE
+	if (save_parameter(argv[1], &parameters->philosophers, FALSE) == FAILURE
+		|| save_parameter(argv[2], &parameters->time_to_die, TRUE) == FAILURE
+		|| save_parameter(argv[3], &parameters->time_to_eat, TRUE) == FAILURE
+		|| save_parameter(argv[4], &parameters->time_to_sleep, TRUE) == FAILURE
 		|| (argv[5]
-			&& save_parameter(argv[5], &parameters->meals_to_end) == FAILURE))
+			&& save_parameter(argv[5], &parameters->meals_to_end, FALSE)
+			== FAILURE))
 	{
 		print_stderr("An unsigned integers entered as parameter is invalid!\n");
 		free(parameters);
@@ -64,10 +66,12 @@ t_parameters	*set_parameters(char **argv)
 //	? ------ Initializes a long integer to check for data overflow ------ ?	//
 //	? -------------- Accepts spaces and a single plus sign -------------- ?	//
 //	? -------------- Saves each number by adding the unit -------------- ?	//
+//	? - If the parameter is a time definition, convert it for usleep() - ?	//
 //	? -------------- Then defines the associated parameter -------------- ?	//
 //	* ----------- Returns a "SUCCESS" status if all went well ----------- *	//
 //	! ---- In case of non-simple-integer parameter, returns failure ---- !	//
-static int	save_parameter(const char *argv, unsigned int *parameter)
+static int	save_parameter(const char *argv, unsigned int *parameter,
+				t_boolean time)
 {
 	unsigned long long	integer;
 
@@ -79,11 +83,13 @@ static int	save_parameter(const char *argv, unsigned int *parameter)
 	while (*argv >= '0' && *argv <= '9')
 	{
 		integer = (integer * 10) + (*argv++ - '0');
-		if ((integer) > INT_MAX)
+		if (integer > INT_MAX || (time && integer * 1000 > INT_MAX))
 			return (FAILURE);
 	}
 	if (*argv)
 		return (FAILURE);
 	*parameter = integer;
+	if (time)
+		*parameter *= 1000;
 	return (SUCCESS);
 }
